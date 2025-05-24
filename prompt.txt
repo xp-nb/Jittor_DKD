@@ -1,0 +1,7 @@
+python -m jittor.test.test_example
+
+
+docker run -it -p 8888:8888 jittor/jittor
+
+tensorboard --logdir=log/teacher
+tensorboard --logdir=logs/evl
