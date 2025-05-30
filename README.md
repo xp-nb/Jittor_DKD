@@ -60,5 +60,27 @@ python3.7 -m jittor.test.test_example
 trainloss曲线
 
 ---
+
 acc-top1曲线
+
+
+## 关于KLDivLoss的Bug
+从上述的loss曲线中，不难发现：教师模型（使用CE作为损失函数）jittor和torch的loss曲线之间的误差较小，kd和dkd模型（使用KL+CE作为损失函数）jittor和torch的loss曲线之间的误差较大；通过细究发现，jittor的KL batchmean总是小于torch的KL batchmean,十分异常；在移植的时候，博主曾对包含KL损失函数的KD、DKD进行过对齐实验，并没有出现这种偏小的情况；
+
+直到在target概率分布中输入了0，终于找到问题了，此时KLDivloss输出的是**Nan**
+```python
+import jittor as jt
+kl_loss = jt.nn.KLDivLoss(reduction="batchmean")
+teacher = jt.nn.softmax(jt.array([1, 1000, 2],dtype=jt.float32))
+student= jt.nn.log_softmax(jt.array([3, 4, 5], dtype=jt.float32))
+output = kl_loss(student, teacher)
+print("target",teacher) # target jt.Var([0. 1. 0.], dtype=float32)
+print(output) # jt.Var([nan], dtype=float32)
+```
+torch会忽略0，而jittor却是输出Nan,进一步扒batchmean的源码,发现Nan这种异常不会被处理:求和时nan不会被计入,但batch_size依然不变，**导致batchmean被nan稀释**
+```python
+        elif self.reduction == "batchmean":
+            loss = loss_pointwise.sum() / input.size(0)
+```
+
 ## DKD复现
