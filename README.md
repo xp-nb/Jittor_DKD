@@ -21,23 +21,41 @@ python3.7 -m pip install jittor
 python3.7 -m jittor.test.test_example
 ```
 ### 实验环境
-|| Jittor     | Torch |
+||   Torch   | Jittor |
 |:----:| :----: | :----: |
-|版本| 1.3.9.14  | 1.12.0+cu116 |
-|CPU| Paragraph   | Text        |
+|版本| 1.12.0+cu116 | 1.3.9.14  |
+|CPU| i5-11400H| i5-13490F|
 
 ## 实验log
 具体的日志见log文件夹
 ### 时间对比
-|| Jittor     | Torch |
+|Teacher| Torch /s    |  Jittor /s|
 |:----:| :----: | :----: |
-|数据加载| 1.3.9.14  | 1.12.0+cu116 |
-|训练| Paragraph   | Text        |
+|数据加载| 2.45 |  0.10 |
+|训练|  5793.60   |    5696.30    |
+|评估| 520.70|40.40|
+
+|KD| Torch /s    |  Jittor /s|
+|:----:| :----: | :----: |
+|数据加载| 0.18 |  0.01 |
+|训练|  463.38   |   220.13   |
+|评估| 18.79|3.09|
+
+|DKD| Torch /s    |  Jittor /s|
+|:----:| :----: | :----: |
+|数据加载| 0.19 |  0.01 |
+|训练|  463.75   |    224.48    |
+|评估| 18.66|3.05|
+
 ### 性能对比
-|| Jittor     | Torch |
+|ACC-TOP1|    Torch  | Jittor |
 |:----:| :----: | :----: |
-|版本| 1.3.9.14  | 1.12.0+cu116 |
-|CPU| Paragraph   | Text        |
+|Teacher模型|  82.63 |  78.62( -4.01)|
+|KD|   66.92  |  64.24( -2.68)    |
+|DKD|66.59|64.30( -2.29)
+
+在训练策略对齐下，jittor训练的teacher模型性能远逊色于（大约5%）torch，考虑到teacher准确率会影响蒸馏效果，因此teacher的训练策略并没有完全对齐,以此提高jittor的teacher性能
+
 ---
 trainloss曲线
 

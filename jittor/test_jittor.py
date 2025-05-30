@@ -5,10 +5,12 @@ from config import TrainCfg
 from dataset_jittor import MyCIFAR10
 
 if __name__ == '__main__':
-    teacher_path = "../config/teacher/epoch_90.pkl" #  best:78.18
-    kd_path = "../config/teacher/epoch_60.pkl"
-    dkd_path = "../config/dkd/best.pkl"
+    teacher_path = "../config/teacher.pkl" #  best:78.18
+    kd_path = "../config/kd.pkl"
+    dkd_path = "../config/dkd.pkl"
+
     model_path = dkd_path
+
     if model_path == teacher_path:
         model = CIFAR10Quick()
     else:
