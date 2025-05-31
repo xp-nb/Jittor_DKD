@@ -1,15 +1,14 @@
 import os
 import time
-import torchvision.models as models
 import jittor as jt
 from jittor import nn, optim
 from torch.utils.tensorboard import SummaryWriter
 from config import TrainCfg
-from tool.dataset_jittor import MyCIFAR10
-from tool.utils_jittor import load_checkpoint, save_checkpoint, AverageMeter
-from tool.utils_jittor import accuracy, validate, get_gt_mask, get_other_mask, cat_mask
+from jittor_.dataset_jittor import MyCIFAR10
+from jittor_.utils_jittor import load_checkpoint, save_checkpoint, AverageMeter
+from jittor_.utils_jittor import accuracy, validate, get_gt_mask, get_other_mask, cat_mask
 from collections import OrderedDict
-from tool.vgg_jittor import CIFAR10Quick, CIFAR10Simple
+from jittor_.vgg_jittor import CIFAR10Quick, CIFAR10Simple
 import jittor.nn as F
 
 

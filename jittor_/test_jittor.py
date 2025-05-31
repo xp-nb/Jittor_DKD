@@ -1,8 +1,8 @@
 import jittor as jt
 
-from vgg_jittor import CIFAR10Simple,CIFAR10Quick
-from config import TrainCfg
-from dataset_jittor import MyCIFAR10
+from jittor_.vgg_jittor import CIFAR10Simple,CIFAR10Quick
+from jittor_.config import TrainCfg
+from jittor_.dataset_jittor import MyCIFAR10
 
 if __name__ == '__main__':
     teacher_path = "../config/teacher.pkl" #  best:78.18

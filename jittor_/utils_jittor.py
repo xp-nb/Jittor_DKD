@@ -1,7 +1,5 @@
-import os
 import jittor as jt
 import jittor.nn as nn
-import numpy as np
 import time
 
 
