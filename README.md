@@ -5,9 +5,12 @@
 对于其他jittor安装方法，博主已经踩了不少坑：在windows中，jittor对编译器版本兼容性较差，编译失败。。。遂止；使用docker安装，不需要担心版本兼容性问题了，但是docker中的jittor版本还是4年前的1.2版本，其模块接口与官网文档不匹配，只能翻github的仓库对着源码写，而且这古早版本缺的算子太多了，要自己补很多，工程量太大。。。遂止；
 使用wsl也并不是很省心。虽然wsl可以检测到gpu，但jittor没有检测到gpu,可能是cuda版本兼容性问题，博主不想再花精力安装了。。。好在cpu测试通过了，因此本项目的实验都是基于cpu进行的。
 下面是jittor安装的版本与代码：
-**Jittor(1.3.9.14)
-g++(11.4.0)
-cuda_driver_version: [12, 9]**
+
+**Jittor(1.3.9.14)**
+
+**g++(11.4.0)**
+
+**cuda_driver_version: [12, 9]**
 ```shell
 #wsl 下 jittor环境搭建
 # 创建虚拟环境 jt python=3.7
@@ -30,7 +33,7 @@ python3.7 -m jittor.test.test_example
 具体的日志见log文件夹
 ### 时间对比
 教师模型训练，训练集大小为25000，验证集大小为5000；
-|Teacher| Torch /s    |  Jittor /s|
+|Teacher| Torch用时 /s    |  Jittor用时 /s|
 |:----:| :----: | :----: |
 |数据加载| 2.45 |  0.10 |
 |训练|  5793.60   |    5696.30    |
@@ -38,13 +41,13 @@ python3.7 -m jittor.test.test_example
 
 学生模型训练，训练集大小为5000，验证集大小为1000；
 
-|KD| Torch /s    |  Jittor /s|
+|KD| Torch用时 /s    |  Jittor用时 /s|
 |:----:| :----: | :----: |
 |数据加载| 0.18 |  0.01 |
 |训练|  463.38   |   220.13   |
 |评估| 18.79|3.09|
 
-|DKD| Torch /s    |  Jittor /s|
+|DKD| Torch用时 /s    |  Jittor用时 /s|
 |:----:| :----: | :----: |
 |数据加载| 0.19 |  0.01 |
 |训练|  463.75   |    224.48    |
@@ -67,6 +70,7 @@ python3.7 -m jittor.test.test_example
 ### 教师模型
 #### loss曲线
 :star:浅蓝色为jittor，深灰色为torch
+
 train:
 ![1](img/t_train_l.png)
 test:
@@ -74,6 +78,7 @@ test:
 在前50epoch的训练中，jittor的loss曲线与torch的loss曲线几乎重合；在后续的训练中，jittor的loss曲线略微逊于torch，且差距随着轮数的增加而增加。
 #### acc-top1曲线
 :star: 浅蓝色为jittor，深灰色为torch
+
 train:
 ![alt text](img/t_train_t.png)
 test:
@@ -83,15 +88,17 @@ test:
 ### 学生模型
 #### loss曲线
 :star: 深蓝色为dkd-torch,紫色为kd-torch,绿色为dkd-jittor,红色为kd-jittor
+
 train:
 ![alt text](img/s_train_l.png)
 test:
 ![alt text](img/s_test_l.png)
 由于dkd增加的loss较大，前10epoch使用warmup线性升温，因此trainloss前10epoch的trainloss会上升
 
-无论是dkd还是kd，jittor的loss都远小于torch的loss，十分不正常，具体分析可见“关于KLDivLoss的Bug”。
+无论是dkd还是kd，jittor的loss都远小于torch的loss，十分不正常，具体分析可见“关于Jittor的Bug--KLDivLoss batchmean输出偏小”。
 #### acc-top1曲线
 :star: 深蓝色为dkd-torch,紫色为kd-torch,绿色为dkd-jittor,红色为kd-jittor
+
 train:
 ![alt text](img/s_train_t.png)
 test:
@@ -101,7 +108,7 @@ test:
 
 ---
 
-## ❗❗❗关于KLDivLoss的Bug
+## ❗❗❗关于Jittor的Bug--KLDivLoss batchmean输出偏小
 从上述的loss曲线中，不难发现：教师模型（使用CE作为损失函数）jittor和torch的loss曲线之间的误差较小，kd和dkd模型（使用KL+CE作为损失函数）jittor和torch的loss曲线之间的误差较大；通过细究发现，jittor的KL batchmean总是小于torch的KL batchmean,十分异常；在移植的时候，博主曾对包含KL损失函数的KD、DKD进行过对齐实验，并没有出现这种偏小的情况；
 
 直到在target概率分布中输入了0，终于找到问题了，此时KLDivloss输出的是**Nan**
@@ -127,8 +134,11 @@ torch会忽略0，而jittor却是输出Nan,进一步扒batchmean的源码,发现
 ### 损失函数
 损失函数 $f=loss_{CE}+loss_{DKD}$
 其中，DKD如下：
+
 ![](img/DKD.png)
+
 TCKD和NCKD都是KLDivLoss的变种：
+
 ![](img/kl.png)
 
 ### 超参数β对模型性能的影响
