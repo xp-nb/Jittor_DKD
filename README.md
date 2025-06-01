@@ -29,6 +29,20 @@ python3.7 -m jittor.test.test_example
 |版本| 1.12.0+cu116 | 1.3.9.14  |
 |CPU| i5-11400H| i5-13490F|
 
+
+## 项目框架简介
+本项目共log、img、data、jittor_、train_ 五个文件夹；
+
+log存放tensorboard记录的日志，使用prompt.txt中的指令即可查看；
+
+img存放readme中的图片；
+
+data为使用的数据集；
+
+jittor_存放jittor框架的数据加载脚本、训练脚本、测试脚本
+
+torch_存放torch框架的数据加载脚本、训练脚本、测试脚本
+
 ## 实验log
 具体的日志见log文件夹
 ### 时间对比
